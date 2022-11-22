@@ -18,7 +18,7 @@ https://discord.gg/CMyMhjecq8
 ## If you want invite the bot to your server
 ### Use the following link:
 ```
-https://discord.com/api/oauth2/authorize?client_id=978333381882433536&permissions=2147814400&scope=bot
+https://discord.com/api/oauth2/authorize?client_id=978333381882433536&permissions=2147748864&scope=bot
 ```
 
 
