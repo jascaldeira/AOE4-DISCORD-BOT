@@ -33,9 +33,9 @@ function getAOE4PlayerLastGames(profileID, since) {
                                 }
                             }
                         }
-                    } else {
-                        return resolve(originalData);
                     }
+
+                    return resolve(originalData);
                 } else {
                     //console.log(error);
                     reject();
