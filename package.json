@@ -1,0 +1,15 @@
+{
+  "name": "AOE4-Companion",
+  "version": "1.0.0",
+  "description": "AOE 4 Companion",
+  "main": "bot.js",
+  "author": "Joao Caldeira",
+  "dependencies": {
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "discord.js": "^13.9.0",
+    "mysql": "^2.18.1",
+    "request": "^2.88.2",
+    "sanitize": "^2.1.0",
+    "winston": "^3.7.2"
+  }
+}

@@ -1,0 +1,10 @@
+{
+    "token": "Discord-application-token",
+    "mysql": {
+        "host": "localhost",
+        "user": "application",
+        "password": "my-secret-password",
+        "database": "defaultdb",
+        "port": "3306"
+    }
+}
