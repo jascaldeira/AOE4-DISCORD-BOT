@@ -162,7 +162,11 @@ async function reportStartingGameToUser(game, userID, userData) {
     });
     
     await insertGameInUserShareList(game.game_id, userID).then(function (result) {
-        bot.users.send(userID, { embeds: [embedData] });
+        try {
+            bot.users.send(userID, { embeds: [embedData] });
+        } catch (error) {
+            console.error(error);
+        }
         //console.log('REPORT SENT!');
     }, function (err) { });
 }
