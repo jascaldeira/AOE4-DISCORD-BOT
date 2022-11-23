@@ -1,6 +1,6 @@
 var logger = require('winston');
 var {tick, tentick} = require('./ticks.js');
-const { Client, Intents, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, Permissions, GatewayIntentBits  } = require('discord.js');
 /**
  * GLOBAL VARS
  */
@@ -27,8 +27,7 @@ logger.level = 'debug';
 // Initialize Discord Bot
 global.bot = new Client({
     intents: [
-        Intents.FLAGS.GUILDS,//adds server functionality
-        Intents.FLAGS.GUILD_MESSAGES //gets messages from our bot.
+        GatewayIntentBits.Guilds
     ]
 });
 
