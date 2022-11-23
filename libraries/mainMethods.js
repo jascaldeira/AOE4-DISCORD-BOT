@@ -48,12 +48,6 @@ async function sendGameReportsForUser(gamesroom, members, userID, userData) {
                                     }
 
                                     let playerName = player.player.name;
-                                    
-                                    if (player.playmate) {
-                                        if (player.playmate.countryCode) {
-                                            playerName += ' :flag_' + player.playmate.countryCode.toLowerCase() + ': ';
-                                        }
-                                    }
 
                                     teamValueString += ((player.player.rating && player.player.rating != 'null' && player.player.rating != null) ? player.player.rating : '') + ' [' + playerName + '](https://aoe4world.com/players/' + player.player.profile_id + ')';
                                     teamValueString += '\n';
@@ -132,12 +126,6 @@ async function reportStartingGameToUser(game, userID, userData) {
 
             let playerName = player.player.name;
             
-            if (player.playmate) {
-                if (player.playmate.countryCode) {
-                    playerName += ' :flag_' + player.playmate.countryCode.toLowerCase() + ': ';
-                }
-            }
-
             let playerRating = null;
             await getAOE4WorldData(player.player.profile_id).then(function (data) {
                 if (data && data.modes && data.modes[game.kind]) {
