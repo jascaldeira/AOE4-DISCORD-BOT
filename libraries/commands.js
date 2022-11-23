@@ -61,7 +61,7 @@ bot.on('messageCreate', function (evt) {
                         var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
                         getAOE4WorldData(profileID).then(function (data) {
                             if (data && data.modes && data.modes.rm_team) {
-                                let playerScore = data.modes.rm_1v1.rating;
+                                let playerScore = data.modes.rm_team.rating;
                                 playerData.push({ 'name': data.name, 'score': playerScore });
                             }
                             countParses++;
@@ -136,9 +136,9 @@ bot.on('messageCreate', function (evt) {
                     .setAuthor({ name: 'Donators', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
                     .setTimestamp()
                     .setFooter({ text: 'Please support the project using the following URL: https://www.buymeacoffee.com/jascaldeira', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
-                embedData.setTitle('Commands');
+                embedData.setTitle('Donators');
                 embedData.addFields(
-                    { name: 'SataNataS', value: '' }
+                    { name: '- ', value: '- SataNataS\n- SataNataS' }
                 );
                 evt.channel.send({ embeds: [embedData] });
                 break;
@@ -150,10 +150,9 @@ bot.on('messageCreate', function (evt) {
                     .setAuthor({ name: 'Contributors', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
                     .setTimestamp()
                     .setFooter({ text: 'Please support the project using the following URL: https://github.com/jascaldeira/AOE4-DISCORD-BOT', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
-                embedData.setTitle('Commands');
+                embedData.setTitle('Contributors');
                 embedData.addFields(
-                    { name: 'Caldeira', value: '' },
-                    { name: 'PM303', value: '' }
+                    { name: '- ', value: '- Caldeira\n- PM303' }
                 );
                 evt.channel.send({ embeds: [embedData] });
                 break;
