@@ -33,8 +33,35 @@ bot.on('messageCreate', function (evt) {
                     for (var userID in playersPerServer[guildID]) {
                         var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
                         getAOE4WorldData(profileID).then(function (data) {
-                            if (data && data.modes && (data.modes.rm_1v1 || data.modes.rm_team)) {
-                                let playerScore = (((data.modes.rm_1v1 && data.modes.rm_1v1.rating) ? data.modes.rm_1v1.rating : 0) + (((data.modes.rm_team && data.modes.rm_team.rating) ? data.modes.rm_team.rating : 0)/2));
+                            if (data && data.modes && data.modes.rm_1v1) {
+                                let playerScore = data.modes.rm_1v1.rating;
+                                playerData.push({ 'name': data.name, 'score': playerScore });
+                            }
+                            countParses++;
+                            if (countParses >= Object.keys(playersPerServer[guildID]).length) {
+                                showLadder(playerData, evt.channel, guildID);
+                            }
+                        }, function (err) {
+                            countParses++;
+                            if (countParses >= Object.keys(playersPerServer[guildID]).length) {
+                                showLadder(playerData, evt.channel, guildID);
+                            }
+                        })
+                    };
+                }
+
+                break;
+
+            // !teamladder
+            case 'teamladder':
+                if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
+                    var playerData = [];
+                    var countParses = 0;
+                    for (var userID in playersPerServer[guildID]) {
+                        var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
+                        getAOE4WorldData(profileID).then(function (data) {
+                            if (data && data.modes && data.modes.rm_team) {
+                                let playerScore = data.modes.rm_1v1.rating;
                                 playerData.push({ 'name': data.name, 'score': playerScore });
                             }
                             countParses++;
@@ -114,6 +141,9 @@ bot.on('messageCreate', function (evt) {
                     { name: '!signup [AOE4_PROFILE_ID]', value: 'Use this command to sign up your AOE4 profile ID in this discord server.' },
                     { name: '!mystats', value: 'Using this command you will see your AOE4 ranked stats' },
                     { name: '!ladder', value: 'Internal discord Ladder' },
+                    { name: '!teamladder', value: 'Internal discord Team Ladder' },
+                    { name: '\u200B', value: '\u200B' },
+                    { name: '!gamesroom', value: '[ADMIN COMMAND] Use this command to define the discord channel where the bot will print the game reports' },
                     { name: '\u200B', value: '\u200B' }
                 );
                 evt.channel.send({ embeds: [embedData] });
