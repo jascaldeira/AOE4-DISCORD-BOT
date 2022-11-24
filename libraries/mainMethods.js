@@ -74,8 +74,8 @@ async function sendGameReportsForUser(gamesroom, members, userID, userData) {
                             //console.log('SENDING GAME REPORT...');
                             if (sendMatchMessage) {
                                 //console.log('CHECKING IF GAME IS ALREADY IN CHANNEL...');
-                                insertGameInShareList(game.game_id, gamesroom).then(function (result) {
-                                    channel.send({ embeds: [embedData] });
+                                await insertGameInShareList(game.game_id, gamesroom).then(async function (result) {
+                                    await channel.send({ embeds: [embedData] });
                                     //console.log('REPORT SENT!');
                                 }, function (err) { });
                             }
