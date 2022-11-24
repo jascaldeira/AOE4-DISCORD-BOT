@@ -1,6 +1,6 @@
 var {getAOE4WorldData, getAOE4PlayerLastGames} = require('./dataGetters.js');
 var {updateUserData, insertGameInShareList, insertGameInUserShareList} = require('./databaseMethods.js');
-const { Client, Intents, MessageEmbed, Permissions } = require('discord.js');
+const { Client, Intents, EmbedBuilder, Permissions } = require('discord.js');
 
 async function sendGameReportsForUser(gamesroom, members, userID, userData) {
     if (userData['aoe4_world_id']) {
@@ -12,7 +12,7 @@ async function sendGameReportsForUser(gamesroom, members, userID, userData) {
                     let timestamp = date1.getTime();
                     if (userData['last_game_checkup_at'] === null || typeof userData['last_game_checkup_at'] == 'undefined' || parseInt(userData['last_game_checkup_at']) < timestamp) {
                         if (game.ongoing == false) {
-                            var embedData = new MessageEmbed()
+                            var embedData = new EmbedBuilder()
                                 .setColor('#0099ff')
                                 .setAuthor({ name: 'Game Report', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
                                 .setTimestamp()
@@ -74,8 +74,8 @@ async function sendGameReportsForUser(gamesroom, members, userID, userData) {
                             //console.log('SENDING GAME REPORT...');
                             if (sendMatchMessage) {
                                 //console.log('CHECKING IF GAME IS ALREADY IN CHANNEL...');
-                                insertGameInShareList(game.game_id, gamesroom).then(function (result) {
-                                    channel.send({ embeds: [embedData] });
+                                await insertGameInShareList(game.game_id, gamesroom).then(async function (result) {
+                                    await channel.send({ embeds: [embedData] });
                                     //console.log('REPORT SENT!');
                                 }, function (err) { });
                             }
@@ -95,7 +95,7 @@ async function sendGameReportsForUser(gamesroom, members, userID, userData) {
 }
 
 async function reportStartingGameToUser(game, userID, userData) {
-    var embedData = new MessageEmbed()
+    var embedData = new EmbedBuilder()
         .setColor('#0099ff')
         .setAuthor({ name: 'Game Starting...', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
         .setTimestamp()
@@ -162,7 +162,11 @@ async function reportStartingGameToUser(game, userID, userData) {
     });
     
     await insertGameInUserShareList(game.game_id, userID).then(function (result) {
-        bot.users.send(userID, { embeds: [embedData] });
+        try {
+            bot.users.send(userID, { embeds: [embedData] });
+        } catch (error) {
+            console.error(error);
+        }
         //console.log('REPORT SENT!');
     }, function (err) { });
 }
@@ -175,10 +179,10 @@ async function sendGamesReport(gamesroom, members) {
     }
 }
 
-function showLadder(playerData, channel, guildID) {
+function showLadder(playerData, guildID) {
     let guildData = bot.guilds.cache.get(guildID);
     var ladderName = guildData.name + ' - AOE4 Ladder';
-    var embedData = new MessageEmbed()
+    var embedData = new EmbedBuilder()
         .setColor('#0099ff')
         .setTimestamp()
         .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
@@ -197,7 +201,7 @@ function showLadder(playerData, channel, guildID) {
     }
     embedData.addFields({ name: '\u200B', value: '\u200B' });
 
-    channel.send({ embeds: [embedData] });
+    return embedData;
 }
 
 module.exports = {showLadder, sendGamesReport};

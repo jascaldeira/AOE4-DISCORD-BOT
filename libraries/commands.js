@@ -1,207 +1,76 @@
+const fs = require('node:fs');
+const path = require('node:path');
 var {getAOE4WorldData} = require('./dataGetters.js');
 var {saveSetting} = require('./databaseMethods.js');
 var {showLadder} = require('./mainMethods.js');
-const { Client, Intents, MessageEmbed, Permissions } = require('discord.js');
-bot.on('messageCreate', function (evt) {
-    let user = evt.author.username;
-    userID = evt.author.id;
-    let channelID = evt.channelId;
-    let guildID = evt.guildId;
-    let message = evt.content;
+const { Client, Intents, EmbedBuilder, Permissions, Collection, REST, Routes, Events } = require('discord.js');
 
-    // Our bot needs to know if it will execute a command
-    // It will listen for messages that will start with `!`
-    if (message.substring(0, 1) == '!' && booted) {
-        var args = message.substring(1).split(' ');
-        var cmd = args[0];
+bot.commands = new Collection();
 
-        args = args.splice(1);
-        switch (cmd) {
-            // !gamesroom
-            case 'gamesroom':
-                if (evt.member.permissions.has("ADMINISTRATOR")) {
-                    saveSetting(guildID, 'gamesroom', channelID);
-                    evt.channel.send('This channel is now the games room.');
-                }
-                break;
+/**
+ * 
+ * 
+ * Read the commands:
+ * 
+ * 
+ */
+const commands = [];
+const commandsPath = path.join(__dirname, '../commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-            // !ladder
-            case 'ladder':
-                if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
-                    var playerData = [];
-                    var countParses = 0;
-                    for (var userID in playersPerServer[guildID]) {
-                        var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
-                        getAOE4WorldData(profileID).then(function (data) {
-                            if (data && data.modes && data.modes.rm_1v1) {
-                                let playerScore = data.modes.rm_1v1.rating;
-                                playerData.push({ 'name': data.name, 'score': playerScore });
-                            }
-                            countParses++;
-                            if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                                showLadder(playerData, evt.channel, guildID);
-                            }
-                        }, function (err) {
-                            countParses++;
-                            if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                                showLadder(playerData, evt.channel, guildID);
-                            }
-                        })
-                    };
-                }
+for (const file of commandFiles) {
+	const filePath = path.join(commandsPath, file);
+	const command = require(filePath);
+    commands.push(command.data.toJSON());
+	// Set a new item in the Collection with the key as the command name and the value as the exported module
+	if ('data' in command && 'execute' in command) {
+		bot.commands.set(command.data.name, command);
+	} else {
+		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+	}
+}
 
-                break;
+/**
+ * 
+ * 
+ * Deploy the commands:
+ * 
+ * 
+ */
+// Construct and prepare an instance of the REST module
+const rest = new REST({ version: '10' }).setToken(config.token);
 
-            // !teamladder
-            case 'teamladder':
-                if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
-                    var playerData = [];
-                    var countParses = 0;
-                    for (var userID in playersPerServer[guildID]) {
-                        var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
-                        getAOE4WorldData(profileID).then(function (data) {
-                            if (data && data.modes && data.modes.rm_team) {
-                                let playerScore = data.modes.rm_team.rating;
-                                playerData.push({ 'name': data.name, 'score': playerScore });
-                            }
-                            countParses++;
-                            if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                                showLadder(playerData, evt.channel, guildID);
-                            }
-                        }, function (err) {
-                            countParses++;
-                            if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                                showLadder(playerData, evt.channel, guildID);
-                            }
-                        })
-                    };
-                }
+// and deploy your commands!
+(async () => {
+	try {
+		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-                break;
+		// The put method is used to fully refresh all commands in the guild with the current set
+		const data = await rest.put(
+			Routes.applicationCommands(config.clientId),
+			{ body: commands }
+		).then(() => console.log('Successfully registered application commands.'))
+        .catch(console.error);
+	} catch (error) {
+		// And of course, make sure you catch and log any errors!
+		console.error(error);
+	}
+})();
 
-            case 'mystats':
-                if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID] && playersPerServer[guildID][userID] && playersPerServer[guildID][userID]['aoe4_world_id']) {
-                    var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
-                    var embedData = new MessageEmbed()
-                        .setColor('#0099ff')
-                        .setAuthor({ name: 'Ranked stats', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
-                        .setTimestamp()
-                        .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+bot.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isChatInputCommand()) return;
 
-                    getAOE4WorldData(profileID).then(function (data) {
-                        if (data && data.modes && (data.modes.rm_1v1 || data.modes.rm_team)) {
-                            var rankString;
-                            embedData.setTitle(data.name);
-                            embedData.setURL(data.site_url);
-                            embedData.setThumbnail(data.avatars.small);
-                            var realRank;
-                            
-                            if (data.modes.rm_1v1) {
-                                rankString = data.modes.rm_1v1.rank_level.replace('_', ' ');
-                                realRank = rankString.charAt(0).toUpperCase() + rankString.slice(1);
-                                embedData.addFields(
-                                    { name: '1v1 Rank', value: '' + data.modes.rm_1v1.rank },
-                                    { name: 'Current Elo', value: realRank + ' (' + data.modes.rm_1v1.rating + ')', inline: true },
-                                    { name: 'Highest Elo', value: '' + data.modes.rm_1v1.max_rating, inline: true },
-                                    { name: '\u200B', value: '\u200B' }
-                                );
-                            }
-                            if (data.modes.rm_team) {
-                                rankString = data.modes.rm_team.rank_level.replace('_', ' ');
-                                realRank = rankString.charAt(0).toUpperCase() + rankString.slice(1);
-                                embedData.addFields(
-                                    { name: 'Team Rank', value: '' + data.modes.rm_team.rank },
-                                    { name: 'Current Elo', value: realRank + ' (' + data.modes.rm_team.rating + ')', inline: true },
-                                    { name: 'Highest Elo', value: '' + data.modes.rm_team.max_rating, inline: true },
-                                    { name: '\u200B', value: '\u200B' }
-                                );
-                            }
-                            
-                            evt.channel.send({ embeds: [embedData] });
-                        } else {
-                            evt.channel.send('No Ranked Details found');
-                        }
-                    }, function (err) {
-                        evt.channel.send('Invalid profile ID');
-                    });
-                } else {
-                    evt.channel.send('No Ranked Details found');
-                }
-                break;
+	const command = interaction.client.commands.get(interaction.commandName);
 
-            // !donators
-            case 'donators':
-                var embedData = new MessageEmbed()
-                    .setColor('#0099ff')
-                    .setAuthor({ name: 'Donators', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
-                    .setTimestamp()
-                    .setFooter({ text: 'Please support the project using the following URL: https://www.buymeacoffee.com/jascaldeira', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
-                embedData.setTitle('Donators');
-                embedData.addFields(
-                    { name: '- ', value: '- SataNataS\n- SataNataS' }
-                );
-                evt.channel.send({ embeds: [embedData] });
-                break;
+	if (!command) {
+		console.error(`No command matching ${interaction.commandName} was found.`);
+		return;
+	}
 
-            // !contributors
-            case 'contributors':
-                var embedData = new MessageEmbed()
-                    .setColor('#0099ff')
-                    .setAuthor({ name: 'Contributors', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
-                    .setTimestamp()
-                    .setFooter({ text: 'Please support the project using the following URL: https://github.com/jascaldeira/AOE4-DISCORD-BOT', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
-                embedData.setTitle('Contributors');
-                embedData.addFields(
-                    { name: '- ', value: '- Caldeira\n- PM303' }
-                );
-                evt.channel.send({ embeds: [embedData] });
-                break;
-
-            // !help
-            case 'help':
-                var embedData = new MessageEmbed()
-                    .setColor('#0099ff')
-                    .setAuthor({ name: 'Help', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
-                    .setTimestamp()
-                    .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
-                embedData.setTitle('Commands');
-                embedData.addFields(
-                    { name: '!signup [AOE4_PROFILE_ID]', value: 'Use this command to sign up your AOE4 profile ID in this discord server.' },
-                    { name: '!mystats', value: 'Using this command you will see your AOE4 ranked stats' },
-                    { name: '!ladder', value: 'Internal discord Ladder' },
-                    { name: '!teamladder', value: 'Internal discord Team Ladder' },
-                    { name: '!donators', value: 'List of everyone that help supporting the bot financially' },
-                    { name: '!contributors', value: 'List of everyone that help supporting the bot in it development' },
-                    { name: '\u200B', value: '\u200B' },
-                    { name: '!gamesroom', value: '[ADMIN COMMAND] Use this command to define the discord channel where the bot will print the game reports' },
-                    { name: '\u200B', value: '\u200B' }
-                );
-                evt.channel.send({ embeds: [embedData] });
-                break;
-
-            // !signup
-            case 'signup':
-                if (typeof playersPerServer[guildID] == 'undefined') {
-                    playersPerServer[guildID] = {};
-                }
-
-                //console.log('GUILD: ' + guildID);
-                //console.log('USER: ' + userID);
-
-                if (args.length === 0 || args[0] == '') {
-                    evt.channel.send('Please use the following syntax: !signup [AOE4_PROFILEID]');
-                    break;
-                }
-                let currentTimestamp = new Date();
-                currentTimestamp = currentTimestamp.getTime();
-
-                playersPerServer[guildID][userID] = { "discord_user_id": userID, "aoe4_world_id": args[0], "discord_guild_id": guildID, "last_game_checkup_at": currentTimestamp };
-                var sanitizedAOE4WorldID = sanitizer.value(args[0], 'int');
-
-                con.query(`INSERT INTO users (discord_user_id, aoe4_world_id, discord_guild_id, last_game_checkup_at) VALUES (` + userID + `, '` + sanitizedAOE4WorldID + `', '` + guildID + `', '` + currentTimestamp + `') ON DUPLICATE KEY UPDATE aoe4_world_id='` + sanitizedAOE4WorldID + `'`, (userErr, result) => { });
-
-                evt.channel.send('Thank you for your registration!');
-                break;
-        }
-    }
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	}
 });
