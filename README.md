@@ -21,6 +21,13 @@ https://discord.gg/CMyMhjecq8
 https://discord.com/api/oauth2/authorize?client_id=978333381882433536&permissions=2147765248&scope=bot
 ```
 
+## If you want to contribute financially in instead of code development
+(There are some bills to pay to keep with the service online)
+### Use the following link:
+```
+https://www.buymeacoffee.com/jascaldeira
+```
+
 
 ## Current contributors
 - [jascaldeira](https://github.com/jascaldeira)
