@@ -7,7 +7,7 @@ module.exports = {
 		.setDescription('Using this command you will see your AOE4 ranked stats'),
 	async execute(interaction) {
         let userID = interaction.user.id;
-        let guildID = interaction.guild_id;
+        let guildID = interaction.guildId;
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID] && playersPerServer[guildID][userID] && playersPerServer[guildID][userID]['aoe4_world_id']) {
             var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
             var embedData = new EmbedBuilder()

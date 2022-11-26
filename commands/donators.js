@@ -12,7 +12,7 @@ module.exports = {
             .setFooter({ text: 'Please support the project using the following URL: https://www.buymeacoffee.com/jascaldeira', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
         embedData.setTitle('Donators');
         embedData.addFields(
-            { name: '- ', value: '- SataNataS' }
+            { name: '- ', value: '- SataNataS\n- Alfred "The Great"' }
         );
 		await interaction.reply({ embeds: [embedData] });
 	},

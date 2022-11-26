@@ -7,8 +7,8 @@ module.exports = {
 		.setDescription('Use this command to define the discord channel where the bot will print the game reports')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 	async execute(interaction) {
-        let guildID = interaction.guild_id;
-        let channelID = interaction.channel_id;
+        let guildID = interaction.guildId;
+        let channelID = interaction.channelId;
         saveSetting(guildID, 'gamesroom', channelID);
         await interaction.reply('This channel is now the games room.');
 	},
