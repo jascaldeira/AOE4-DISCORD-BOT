@@ -5,6 +5,8 @@ const { Client, Intents, EmbedBuilder, Permissions } = require('discord.js');
 async function sendGameReportsForUser(gamesroom, members, userID, userData) {
     if (userData['aoe4_world_id']) {
         let guildData = bot.guilds.cache.get(userData['discord_guild_id']);
+        if ( ! guildData)
+            return;
         await getAOE4PlayerLastGame(userData['aoe4_world_id'], userData['last_game_checkup_at']).then(async function (data) {
             if (data.game_id > 0) {
                 let game = data;
