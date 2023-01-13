@@ -8,6 +8,7 @@ module.exports = {
 	async execute(interaction) {
                 let guildID = interaction.guildId;
                 playersPerServer[guildID] = {};
-                await interaction.reply('This server has been reseted.');
+                con.query(`DELETE FROM users WHERE discord_guild_id='` + guildID + `'`, (userErr, result) => { });
+                await interaction.reply('This server has been reseted..');
 	},
 };

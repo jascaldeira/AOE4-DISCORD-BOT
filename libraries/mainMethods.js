@@ -5,7 +5,7 @@ const { Client, Intents, EmbedBuilder, Permissions } = require('discord.js');
 async function sendGameReportsForUser(gamesroom, members, userID, userData) {
     if (userData['aoe4_world_id']) {
         let guildData = bot.guilds.cache.get(userData['discord_guild_id']);
-        if ( ! guildData)
+	if ( ! guildData)
             return;
         await getAOE4PlayerLastGame(userData['aoe4_world_id'], userData['last_game_checkup_at']).then(async function (data) {
             if (data.game_id > 0) {
@@ -77,7 +77,9 @@ async function sendGameReportsForUser(gamesroom, members, userID, userData) {
                         if (sendMatchMessage) {
                             //console.log('CHECKING IF GAME IS ALREADY IN CHANNEL...');
                             await insertGameInShareList(game.game_id, gamesroom).then(async function (result) {
-                                await channel.send({ embeds: [embedData] });
+                                try {
+                                    await channel.send({ embeds: [embedData] });
+                                } catch (error) {}
                                 //console.log('REPORT SENT!');
                             }, function (err) { });
                         }
@@ -177,6 +179,8 @@ async function sendGamesReport(gamesroom, members) {
 }
 
 function showLadder(playerData, guildID) {
+    const maxPlayers = 20;
+    let addedPlayers = 0;
     let guildData = bot.guilds.cache.get(guildID);
     var ladderName = guildData.name + ' - AOE4 Ladder';
     var embedData = new EmbedBuilder()
@@ -191,7 +195,10 @@ function showLadder(playerData, guildID) {
 
     if (playerData.length > 0) {
         for (var index in playerData) {
-            embedData.addFields({ name: (parseInt(index) + 1) + ' - ' + playerData[index].name, value: ' (Score: ' + playerData[index].score + ')' });
+	    if (addedPlayers < maxPlayers) {
+                embedData.addFields({ name: (parseInt(index) + 1) + ' - ' + playerData[index].name, value: ' (Score: ' + playerData[index].score + ')' });
+	        addedPlayers = addedPlayers + 1;
+	    }
         }
     } else {
         embedData.addFields({ name: 'No players found', value: 'Try again later' });
