@@ -7,7 +7,7 @@ module.exports = {
         .addIntegerOption(option => option.setName('aoe4_profile_id').setDescription('Your AOE4World.com ID').setRequired(true)),
 	async execute(interaction) {
         let userID = interaction.user.id;
-        let guildID = interaction.guild_id;
+        let guildID = interaction.guildId;
         if (typeof playersPerServer[guildID] == 'undefined') {
             playersPerServer[guildID] = {};
         }

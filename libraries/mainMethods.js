@@ -1,89 +1,92 @@
-var {getAOE4WorldData, getAOE4PlayerLastGames} = require('./dataGetters.js');
+var {getAOE4WorldData, getAOE4PlayerLastGame} = require('./dataGetters.js');
 var {updateUserData, insertGameInShareList, insertGameInUserShareList} = require('./databaseMethods.js');
 const { Client, Intents, EmbedBuilder, Permissions } = require('discord.js');
 
 async function sendGameReportsForUser(gamesroom, members, userID, userData) {
     if (userData['aoe4_world_id']) {
         let guildData = bot.guilds.cache.get(userData['discord_guild_id']);
-        await getAOE4PlayerLastGames(userData['aoe4_world_id'], userData['last_game_checkup_at']).then(async function (data) {
-            if (data.count > 0) {
-                for (var [gameID, game] of Object.entries(data.games)) {
-                    let date1 = new Date(game.updated_at);
-                    let timestamp = date1.getTime();
-                    if (userData['last_game_checkup_at'] === null || typeof userData['last_game_checkup_at'] == 'undefined' || parseInt(userData['last_game_checkup_at']) < timestamp) {
-                        if (game.ongoing == false) {
-                            var embedData = new EmbedBuilder()
-                                .setColor('#0099ff')
-                                .setAuthor({ name: 'Game Report', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
-                                .setTimestamp()
-                                .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
-                            let result = game.result;
-                            let map = game.map;
-                            let duration = game.duration;
+	if ( ! guildData)
+            return;
+        await getAOE4PlayerLastGame(userData['aoe4_world_id'], userData['last_game_checkup_at']).then(async function (data) {
+            if (data.game_id > 0) {
+                let game = data;
+                let date1 = new Date(game.updated_at);
+                let timestamp = date1.getTime();
+                if (userData['last_game_checkup_at'] === null || typeof userData['last_game_checkup_at'] == 'undefined' || parseInt(userData['last_game_checkup_at']) < timestamp) {
+                    if (game.ongoing == false) {
+                        var embedData = new EmbedBuilder()
+                            .setColor('#0099ff')
+                            .setAuthor({ name: 'Game Report', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
+                            .setTimestamp()
+                            .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+                        let result = game.result;
+                        let map = game.map;
+                        let duration = game.duration;
 
-                            let title = ':crossed_swords: ';
-                            let teamsParsedData = [];
-                            let gameType = 'SOLO';
-                            let teamNumber = 1;
-                            let sendMatchMessage = true;
-                            for (var [teamID, team] of Object.entries(game.teams)) {
-                                let teamName = '';
-                                let teamResult = 'loss';
-                                let teamValueString = '';
-                                if (team.length > 1) {
-                                    gameType = 'TEAM';
-                                }
-                                for (var [playerID, player] of Object.entries(team)) {
-                                    if (teamName != '') {
-                                        teamName += ' & ';
-                                    }
-                                    teamName += player.player.name;
-                                    if (!player.player.result) {
-                                        sendMatchMessage = false;
-                                    }
-                                    teamResult = player.player.result;
-                                    let emojiData = guildData.emojis.cache.find(emoji => emoji.name == 'aoe4_' + player.player.civilization)
-                                    if (emojiData) {
-                                        teamValueString += '<:'+emojiData.name+':'+emojiData.id+'>';
-                                    }
-
-                                    let playerName = player.player.name;
-
-                                    teamValueString += ((player.player.rating && player.player.rating != 'null' && player.player.rating != null) ? player.player.rating : '') + ' [' + playerName + '](https://aoe4world.com/players/' + player.player.profile_id + ')';
-                                    teamValueString += '\n';
-                                };
-                                teamsParsedData.push({ 'name': 'Team ' + teamNumber + ' :' + ((teamResult == 'loss') ? 'red' : 'green') + '_circle:', 'valuestring': teamValueString });
-                                teamNumber++;
-                            };
-                            title += (game.kind.substring(0, 3) == 'rm_') ? 'Ranked ' : 'Unranked ';
-                            title += ' | ' + gameType + ' | ' + map;
-                            title += ' :crossed_swords:';
-
-
-                            embedData.setTitle(title);
-                            embedData.setThumbnail("https://image.shutterstock.com/image-vector/versus-letters-vs-logo-600w-584218597.jpg");
-                            embedData.addFields(
-                                { name: '\u200B', value: '[:mag: View Summary](https://aoe4world.com/players/' + userData['aoe4_world_id'] + '/games/' + game.game_id + ')' },
-                            );
-                            teamsParsedData.forEach(function (teamData) {
-                                embedData.addFields(
-                                    { name: teamData.name, value: teamData.valuestring, inline: true }
-                                );
-                            });
-                            let channel = bot.channels.cache.get(gamesroom);
-                            //console.log('SENDING GAME REPORT...');
-                            if (sendMatchMessage) {
-                                //console.log('CHECKING IF GAME IS ALREADY IN CHANNEL...');
-                                await insertGameInShareList(game.game_id, gamesroom).then(async function (result) {
-                                    await channel.send({ embeds: [embedData] });
-                                    //console.log('REPORT SENT!');
-                                }, function (err) { });
+                        let title = ':crossed_swords: ';
+                        let teamsParsedData = [];
+                        let gameType = 'SOLO';
+                        let teamNumber = 1;
+                        let sendMatchMessage = true;
+                        for (var [teamID, team] of Object.entries(game.teams)) {
+                            let teamName = '';
+                            let teamResult = 'loss';
+                            let teamValueString = '';
+                            if (team.length > 1) {
+                                gameType = 'TEAM';
                             }
-                        } else {
-                            await reportStartingGameToUser(game, userID, userData);
+                            for (var [playerID, player] of Object.entries(team)) {
+                                if (teamName != '') {
+                                    teamName += ' & ';
+                                }
+                                teamName += player.name;
+                                if (!player.result) {
+                                    sendMatchMessage = false;
+                                }
+                                teamResult = player.result;
+                                let emojiData = guildData.emojis.cache.find(emoji => emoji.name == 'aoe4_' + player.civilization)
+                                if (emojiData) {
+                                    teamValueString += '<:'+emojiData.name+':'+emojiData.id+'>';
+                                }
+
+                                let playerName = player.name;
+
+                                teamValueString += ((player.rating && player.rating != 'null' && player.rating != null) ? player.rating : '') + ' [' + playerName + '](https://aoe4world.com/players/' + player.profile_id + ')';
+                                teamValueString += '\n';
+                            };
+                            teamsParsedData.push({ 'name': 'Team ' + teamNumber + ' :' + ((teamResult == 'loss') ? 'red' : 'green') + '_circle:', 'valuestring': teamValueString });
+                            teamNumber++;
+                        };
+                        title += (game.kind.substring(0, 3) == 'rm_') ? 'Ranked ' : 'Unranked ';
+                        title += ' | ' + gameType + ' | ' + map;
+                        title += ' :crossed_swords:';
+
+
+                        embedData.setTitle(title);
+                        embedData.setThumbnail("https://image.shutterstock.com/image-vector/versus-letters-vs-logo-600w-584218597.jpg");
+                        embedData.addFields(
+                            { name: '\u200B', value: '[:mag: View Summary](https://aoe4world.com/players/' + userData['aoe4_world_id'] + '/games/' + game.game_id + ')' },
+                        );
+                        teamsParsedData.forEach(function (teamData) {
+                            embedData.addFields(
+                                { name: teamData.name, value: teamData.valuestring, inline: true }
+                            );
+                        });
+                        let channel = bot.channels.cache.get(gamesroom);
+                        //console.log('SENDING GAME REPORT...');
+                        if (sendMatchMessage) {
+                            //console.log('CHECKING IF GAME IS ALREADY IN CHANNEL...');
+                            await insertGameInShareList(game.game_id, gamesroom).then(async function (result) {
+                                try {
+                                    await channel.send({ embeds: [embedData] });
+                                } catch (error) {}
+                                //console.log('REPORT SENT!');
+                            }, function (err) { });
                         }
+                    } else {
+                        await reportStartingGameToUser(game, userID, userData);
                     }
-                };
+                }
             }
             let currentTimestamp = new Date();
             currentTimestamp = currentTimestamp.getTime();
@@ -119,15 +122,15 @@ async function reportStartingGameToUser(game, userID, userData) {
             if (teamName != '') {
                 teamName += ' & ';
             }
-            teamName += player.player.name;
-            if (!player.player.result) {
+            teamName += player.name;
+            if (!player.result) {
                 sendMatchMessage = false;
             }
 
-            let playerName = player.player.name;
+            let playerName = player.name;
             
             let playerRating = null;
-            await getAOE4WorldData(player.player.profile_id).then(function (data) {
+            await getAOE4WorldData(player.profile_id).then(function (data) {
                 if (data && data.modes && data.modes[game.kind]) {
                     playerRating = data.modes[game.kind].rating
                 } else if (data && data.modes && game.kind.substring(0, 3) == 'rm_') {
@@ -142,7 +145,7 @@ async function reportStartingGameToUser(game, userID, userData) {
             }, function (err) {
             });
             
-            teamValueString += ((playerRating != null) ? playerRating : '') + ' [' + playerName + '](https://aoe4world.com/players/' + player.player.profile_id + ')';
+            teamValueString += ((playerRating != null) ? playerRating : '') + ' [' + playerName + '](https://aoe4world.com/players/' + player.profile_id + ')';
             teamValueString += '\n';
         };
         teamsParsedData.push({ 'name': 'Team ' + teamNumber, 'valuestring': teamValueString });
@@ -162,11 +165,7 @@ async function reportStartingGameToUser(game, userID, userData) {
     });
     
     await insertGameInUserShareList(game.game_id, userID).then(function (result) {
-        try {
-            bot.users.send(userID, { embeds: [embedData] });
-        } catch (error) {
-            console.error(error);
-        }
+        bot.users.send(userID, { embeds: [embedData] }).catch(error => {});
         //console.log('REPORT SENT!');
     }, function (err) { });
 }
@@ -180,6 +179,8 @@ async function sendGamesReport(gamesroom, members) {
 }
 
 function showLadder(playerData, guildID) {
+    const maxPlayers = 20;
+    let addedPlayers = 0;
     let guildData = bot.guilds.cache.get(guildID);
     var ladderName = guildData.name + ' - AOE4 Ladder';
     var embedData = new EmbedBuilder()
@@ -194,7 +195,10 @@ function showLadder(playerData, guildID) {
 
     if (playerData.length > 0) {
         for (var index in playerData) {
-            embedData.addFields({ name: (parseInt(index) + 1) + ' - ' + playerData[index].name, value: ' (Score: ' + playerData[index].score + ')' });
+	    if (addedPlayers < maxPlayers) {
+                embedData.addFields({ name: (parseInt(index) + 1) + ' - ' + playerData[index].name, value: ' (Score: ' + playerData[index].score + ')' });
+	        addedPlayers = addedPlayers + 1;
+	    }
         }
     } else {
         embedData.addFields({ name: 'No players found', value: 'Try again later' });

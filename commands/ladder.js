@@ -1,11 +1,13 @@
 const { Client, Intents, EmbedBuilder, Permissions, SlashCommandBuilder } = require('discord.js');
 var {showLadder} = require('../libraries/mainMethods.js');
+var {getAOE4WorldData} = require('../libraries/dataGetters.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('ladder')
 		.setDescription('Internal discord Ladder.'),
 	async execute(interaction) {
+        let guildID = interaction.guildId;
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
             var playerData = [];
             var countParses = 0;

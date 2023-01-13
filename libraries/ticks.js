@@ -4,6 +4,9 @@ function tick() {
 }
 
 function tentick() {
+}
+
+function sixtytick() {
     if (guildSettings) {
         //console.log('Starting game report cycle...');
         for (var [guildID, guildSetting] of Object.entries(guildSettings)) {
@@ -15,4 +18,4 @@ function tentick() {
     }
 }
 
-module.exports = {tick, tentick};
+module.exports = {tick, tentick, sixtytick};

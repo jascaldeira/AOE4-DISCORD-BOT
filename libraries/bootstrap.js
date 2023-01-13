@@ -1,5 +1,5 @@
 var logger = require('winston');
-var {tick, tentick} = require('./ticks.js');
+var {tick, tentick, sixtytick} = require('./ticks.js');
 const { Client, Intents, Permissions, GatewayIntentBits  } = require('discord.js');
 /**
  * GLOBAL VARS
@@ -66,6 +66,7 @@ bot.once("ready", () => {
                             booted = true;
                             setInterval(tick, 1000);
                             setInterval(tentick, 10000);
+                            setInterval(sixtytick, 60000);
                             //console.log("Settings and Guilds loaded");
                         }
                         guildLoop++;
@@ -76,6 +77,7 @@ bot.once("ready", () => {
                 booted = true;
                 setInterval(tick, 1000);
                 setInterval(tentick, 10000);
+                setInterval(sixtytick, 60000);
                 //console.log("Settings and Guilds loaded");
             }
         });
