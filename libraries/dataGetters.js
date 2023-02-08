@@ -35,15 +35,15 @@ function getAOE4PlayerLastGame(profileID, since) {
     });
 }
 
-function getAOE4PlayerLastGames(profileID, since) {
+function getAOE4PlayerLastGames(profileID, gamesNumber) {
     return new Promise(function (resolve, reject) {
         try {
-            request('https://aoe4world.com/api/v0/players/' + profileID + '/games?limit=' + 5, function (error, response, body) {
+            request('https://aoe4world.com/api/v0/players/' + profileID + '/games?limit=' + gamesNumber, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
 
                     let originalData = JSON.parse(body);
                     let newData = originalData;
-
+                    console.log("API")
                     return resolve(originalData);
                 } else {
                     //console.log(error);
@@ -51,6 +51,7 @@ function getAOE4PlayerLastGames(profileID, since) {
                 }
             })
         } catch (e) {
+            console.log(JSON.stringify(e))
             reject()
         }
     });
