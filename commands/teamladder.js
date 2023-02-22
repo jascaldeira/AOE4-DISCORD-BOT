@@ -1,15 +1,16 @@
 const { Client, Intents, EmbedBuilder, Permissions, SlashCommandBuilder } = require('discord.js');
-var {showLadder} = require('../libraries/mainMethods.js');
-var {getAOE4WorldData} = require('../libraries/dataGetters.js');
+var { showLadder } = require('../libraries/mainMethods.js');
+var { getAOE4WorldData } = require('../libraries/dataGetters.js');
 
 module.exports = {
-	data: new SlashCommandBuilder()
-		.setName('teamladder')
-		.setDescription('Internal discord Team Ladder.'),
-	async execute(interaction) {
+    data: new SlashCommandBuilder()
+        .setName('teamladder')
+        .setDescription('Internal discord Ranked Team Ladder.'),
+    async execute(interaction) {
         let guildID = interaction.guildId;
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
             var playerData = [];
+            let embedArray;
             var countParses = 0;
             for (var userID in playersPerServer[guildID]) {
                 var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
@@ -20,15 +21,15 @@ module.exports = {
                     }
                     countParses++;
                     if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                        await interaction.reply({ embeds: [showLadder(playerData, guildID)] });
+                        await interaction.reply({ embeds: showLadder(playerData, guildID, "Ranked Team Ladder") });
                     }
                 }, async function (err) {
                     countParses++;
                     if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                        await interaction.reply({ embeds: [showLadder(playerData, guildID)] });
+                        await interaction.reply({ embeds: showLadder(playerData, guildID, "Ranked Team Ladder") });
                     }
                 })
             };
         }
-	},
+    },
 };
