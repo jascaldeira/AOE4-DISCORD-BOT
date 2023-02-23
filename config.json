@@ -1,10 +1,11 @@
 {
-    "token": "Discord-application-token",
+    "token": "MTA0NTAyNDg3MDgxNzMzNzUzNA.Gf6tt4.2sFl2uI0-l-Id9PhNlfP4sT-I5A3MWHkjnKJRk",
+    "clientId": "1045024870817337534",
     "mysql": {
-        "host": "localhost",
-        "user": "application",
-        "password": "my-secret-password",
-        "database": "defaultdb",
+        "host": "127.0.0.1",
+        "user": "werbix",
+        "password": "english",
+        "database": "companion",
         "port": "3306"
     }
 }

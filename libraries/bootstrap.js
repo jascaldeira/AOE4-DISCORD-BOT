@@ -45,6 +45,7 @@ bot.once("ready", () => {
     logger.info(bot.username);
 
     con.query(`SELECT * FROM settings`, (settingErr, settingRow) => {
+        console.log(JSON.stringify(settingRow))
         settingRow.forEach(function (setting) {
             if (!guildSettings[setting.discord_guild_id])
                 guildSettings[setting.discord_guild_id] = {};
