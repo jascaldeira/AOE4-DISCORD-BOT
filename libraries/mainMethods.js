@@ -251,21 +251,4 @@ function newEmbed() {
     return embedData;
 }
 
-function addGeneratedTestData(playerData) {
-    const characters = [
-        ...Array.from({ length: 10 }, (_, i) => String.fromCharCode(48 + i)), // numbers 0-9
-        ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)), // uppercase letters A-Z
-        ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(97 + i)), // lowercase letters a-z
-      ];
-
-    for (let i = 0; i < 50; i++) {
-        const nameLength = Math.floor(Math.random() * (32 - 3 + 1)) + 3;
-        const name = Array.from({ length: nameLength }, () => characters[Math.floor(Math.random() * characters.length)]).join('');
-
-        const score = Math.floor(Math.random() * (2600 - 15 + 1)) + 15;
-
-        playerData.push({ name, score });
-    }
-    return playerData;
-}
 module.exports = { showLadder, sendGamesReport };
