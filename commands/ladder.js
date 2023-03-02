@@ -11,6 +11,7 @@ module.exports = {
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
             var playerData = [];
             var countParses = 0;
+            await interaction.reply('Working on it');
             for (var userID in playersPerServer[guildID]) {
                 var profileID = playersPerServer[guildID][userID]['aoe4_world_id'];
                 getAOE4WorldData(profileID).then(async function (data) {
@@ -20,12 +21,12 @@ module.exports = {
                     }
                     countParses++;
                     if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                        await interaction.reply({ embeds: showLadder(playerData, guildID, "Ranked Solo Ladder") });
+                        await interaction.editReply({ content: '', embeds: showLadder(playerData, guildID, "Ranked Solo Ladder") });
                     }
                 }, async function (err) {
                     countParses++;
                     if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                        await interaction.reply({ embeds: showLadder(playerData, guildID, "Ranked Solo Ladder") });
+                        await interaction.editReply({ content: '', embeds: showLadder(playerData, guildID, "Ranked Solo Ladder") });
                     }
                 })
             };
