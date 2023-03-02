@@ -1,11 +1,11 @@
 const { Client, Intents, EmbedBuilder, Permissions, SlashCommandBuilder } = require('discord.js');
-var {getAOE4WorldData} = require('../libraries/dataGetters.js');
+var { getAOE4WorldData } = require('../libraries/dataGetters.js');
 
 module.exports = {
-	data: new SlashCommandBuilder()
-		.setName('mystats')
-		.setDescription('Using this command you will see your AOE4 ranked stats'),
-	async execute(interaction) {
+    data: new SlashCommandBuilder()
+        .setName('mystats')
+        .setDescription('Using this command you will see your AOE4 ranked stats'),
+    async execute(interaction) {
         let userID = interaction.user.id;
         let guildID = interaction.guildId;
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID] && playersPerServer[guildID][userID] && playersPerServer[guildID][userID]['aoe4_world_id']) {
@@ -23,7 +23,7 @@ module.exports = {
                     embedData.setURL(data.site_url);
                     embedData.setThumbnail(data.avatars.small);
                     var realRank;
-                    
+
                     if (data.modes.rm_1v1) {
                         rankString = data.modes.rm_1v1.rank_level.replace('_', ' ');
                         realRank = rankString.charAt(0).toUpperCase() + rankString.slice(1);
@@ -44,7 +44,7 @@ module.exports = {
                             { name: '\u200B', value: '\u200B' }
                         );
                     }
-                    
+
                     await interaction.reply({ embeds: [embedData] });
                 } else {
                     await interaction.reply('No Ranked Details found');
@@ -55,5 +55,5 @@ module.exports = {
         } else {
             await interaction.reply('No Ranked Details found');
         }
-	},
+    },
 };

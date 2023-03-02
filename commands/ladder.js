@@ -1,12 +1,12 @@
 const { Client, Intents, EmbedBuilder, Permissions, SlashCommandBuilder } = require('discord.js');
-var {showLadder} = require('../libraries/mainMethods.js');
-var {getAOE4WorldData} = require('../libraries/dataGetters.js');
+var { showLadder } = require('../libraries/mainMethods.js');
+var { getAOE4WorldData } = require('../libraries/dataGetters.js');
 
 module.exports = {
-	data: new SlashCommandBuilder()
-		.setName('ladder')
-		.setDescription('Internal discord Ladder.'),
-	async execute(interaction) {
+    data: new SlashCommandBuilder()
+        .setName('ladder')
+        .setDescription('Internal discord Ranked Solo Ladder.'),
+    async execute(interaction) {
         let guildID = interaction.guildId;
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
             var playerData = [];
@@ -20,15 +20,15 @@ module.exports = {
                     }
                     countParses++;
                     if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                        await interaction.reply({ embeds: [showLadder(playerData, guildID)] });
+                        await interaction.reply({ embeds: showLadder(playerData, guildID, "Ranked Solo Ladder") });
                     }
                 }, async function (err) {
                     countParses++;
                     if (countParses >= Object.keys(playersPerServer[guildID]).length) {
-                        await interaction.reply({ embeds: [showLadder(playerData, guildID)] });
+                        await interaction.reply({ embeds: showLadder(playerData, guildID, "Ranked Solo Ladder") });
                     }
                 })
             };
         }
-	},
+    },
 };
