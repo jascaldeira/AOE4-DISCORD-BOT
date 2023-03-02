@@ -186,9 +186,6 @@ function showLadder(playerData, guildID, ladderType) {
     let ladderName = guildData.name + ' ' + ladderType;
     let embedsArray = [];
 
-    // for testing purposes
-    playerData = addGeneratedTestData(playerData);
-
     var longestPlayerName = playerData.sort(function (a, b) {
         return b['name'].length - a['name'].length;
     }
