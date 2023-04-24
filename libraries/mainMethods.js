@@ -204,6 +204,7 @@ function showLadder(playerData, guildID, ladderType) {
         let first = true;
         let embedInserted = false;
         let removedPlayers = 0;
+        let playersAdded = false;
         for (var index in playerData) {
             if (addedPlayers % maxPlayersPerEmbed == 0) {
                 titleLine = '';
@@ -216,14 +217,16 @@ function showLadder(playerData, guildID, ladderType) {
             let timeAgoValue = timeAgo(playerData[index].lastgame);
 
             if (timeAgoValue.secondsDiff < 1296000) {
-                playersLineByLine = playersLineByLine + generateRow((parseInt(index) + 1), undefined, playerData[index].name, longestPlayerName + 2, playerData[index].rank, undefined, playerData[index].score, undefined, timeAgoValue.translated, undefined);
+                playersLineByLine = playersLineByLine + generateRow((parseInt(addedPlayers) + 1), undefined, playerData[index].name, longestPlayerName + 2, playerData[index].rank, undefined, playerData[index].score, undefined, timeAgoValue.translated, undefined);
                 addedPlayers = addedPlayers + 1;
+                playersAdded = true;
             } else {
                 removedPlayers = removedPlayers + 1;
             }
-            if (addedPlayers % maxPlayersPerEmbed == 0 || addedPlayers == (playerData.length - removedPlayers)) {
+            if ((addedPlayers % maxPlayersPerEmbed == 0 || addedPlayers == (playerData.length - removedPlayers)) && playersAdded) {
                 embedData.setDescription(titleLine + "```" + playersLineByLine + "```");
                 playersLineByLine = '';
+                playersAdded = false;
                 if (embedsArray.length == embedArrayLimit) {
                     break;
                 }

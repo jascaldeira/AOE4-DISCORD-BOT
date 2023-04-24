@@ -1,10 +1,11 @@
 {
-    "token": "Discord-application-token",
+    "token": "MTA0NTAyNDg3MDgxNzMzNzUzNA.Gf6tt4.2sFl2uI0-l-Id9PhNlfP4sT-I5A3MWHkjnKJRk",
+    "clientId": "1045024870817337534",
     "mysql": {
-        "host": "localhost",
-        "user": "application",
-        "password": "my-secret-password",
+        "host": "aoe4-companion-dev-do-user-427279-0.b.db.ondigitalocean.com",
+        "user": "dev-legacy",
+        "password": "AVNS_v8s4DH877haj74YSsKN",
         "database": "defaultdb",
-        "port": "3306"
+        "port": "25060"
     }
 }
