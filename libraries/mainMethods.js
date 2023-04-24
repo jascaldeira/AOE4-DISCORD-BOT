@@ -197,22 +197,33 @@ function showLadder(playerData, guildID, ladderType) {
 
     var embedData = newEmbed();
     embedData.setTitle(ladderName);
+    embedData.setThumbnail("https://www.pngall.com/wp-content/uploads/5/Gold-Trophy-PNG.png");
     if (playerData.length > 0) {
         let playersLineByLine = '';
+        let titleLine = '';
+        let first = true;
         for (var index in playerData) {
             if (index % maxPlayersPerEmbed == 0) {
-                playersLineByLine = generateRow("#", undefined, 'Name', longestPlayerName, "Score", undefined)
-            }
-            playersLineByLine = playersLineByLine + generateRow((parseInt(index) + 1), undefined, playerData[index].name, longestPlayerName, playerData[index].score, undefined);
-            addedPlayers = addedPlayers + 1;
-            if (addedPlayers % maxPlayersPerEmbed == 0 || addedPlayers == playerData.length) {
-                embedData.setDescription("```" + playersLineByLine + "```");
-                playersLineByLine = '';
-                if (embedsArray.length == embedArrayLimit) {
-                    break;
+                titleLine = '';
+                if (first) {
+                    titleLine = 'Players who have not played for more than 15 days will be removed from the Ladder. \r\n';
                 }
-                embedsArray.push(embedData);
-                embedData = newEmbed();
+                titleLine = titleLine + generateRow("#", undefined, 'Player', longestPlayerName, "Top", undefined, "Rank", undefined, "Last game", undefined);
+                first = false;
+            }
+            let timeAgo = timeAgo(playerData[index].lastgame);
+            if (timeAgo.secondsDiff < 1296000) {
+                playersLineByLine = playersLineByLine + generateRow((parseInt(index) + 1), undefined, playerData[index].name, longestPlayerName, playerData[index].rank, undefined, playerData[index].score, undefined, timeAgo.translated, undefined);
+                addedPlayers = addedPlayers + 1;
+                if (addedPlayers % maxPlayersPerEmbed == 0 || addedPlayers == playerData.length) {
+                    embedData.setDescription(titleLine + "```" + playersLineByLine + "```");
+                    playersLineByLine = '';
+                    if (embedsArray.length == embedArrayLimit) {
+                        break;
+                    }
+                    embedsArray.push(embedData);
+                    embedData = newEmbed();
+                }
             }
         }
         embedsArray[embedsArray.length - 1].setTimestamp()
@@ -226,12 +237,14 @@ function showLadder(playerData, guildID, ladderType) {
     return embedsArray;
 }
 
-function generateRow(col1, col1MaxWidth = 4, col2, col2MaxWidth, col3, col3MaxWidth = 6) {
+function generateRow(col1, col1MaxWidth = 4, col2, col2MaxWidth = 6, col3, col3MaxWidth = 5, col4, col4MaxWidth = 4, col5, col5MaxWidth = 14) {
     let line = '';
     const space = ' ';
     line = col1 + space.repeat(cellFiller(col1, col1MaxWidth)) +
         col2 + space.repeat(cellFiller(col2, col2MaxWidth)) + ' ' +
-        space.repeat(cellFiller(col3, col3MaxWidth)) + col3 + '\r\n';
+        col3 + space.repeat(cellFiller(col3, col3MaxWidth)) + ' ' +
+        col4 + space.repeat(cellFiller(col4, col4MaxWidth)) + ' ' +
+        space.repeat(cellFiller(col5, col5MaxWidth)) + col5 + '\r\n';
 
     return line;
 }
@@ -246,6 +259,30 @@ function newEmbed() {
     let embedData = new EmbedBuilder()
         .setColor('#0099ff');
     return embedData;
+}
+
+function timeAgo(datetime) {
+    let date = new Date(datetime);
+    var curdate = new Date();
+    let timestampSeconds = Math.floor(date.getTime() / 1000);
+    let curTimestampSeconds = Math.floor(curdate.getTime() / 1000);
+
+    let diffInSeconds = (curTimestampSeconds - timestampSeconds);
+
+    let translation = '';
+
+    if (diffInSeconds < 3600) {
+        translation = Math.floor(diffInSeconds / 60) + ' Minutes ago';
+    } else if (diffInSeconds < 86400) {
+        translation = Math.floor(diffInSeconds / 60 / 60) + ' Hours ago';
+    } else {
+        translation = Math.floor(diffInSeconds / 60 / 60 / 24) + ' Days ago';
+    }
+
+    return {
+        'secondsDiff': diffInSeconds,
+        'translated': translation
+    };
 }
 
 module.exports = { showLadder, sendGamesReport };
