@@ -17,7 +17,9 @@ module.exports = {
                 getAOE4WorldData(profileID).then(async function (data) {
                     if (data && data.modes && data.modes.rm_team) {
                         let playerScore = data.modes.rm_team.rating;
-                        playerData.push({ 'name': data.name, 'score': playerScore });
+                        let playerRank = data.modes.rm_team.rank;
+                        let playerLastGame = data.modes.rm_team.last_game_at;
+                        playerData.push({ 'name': data.name, 'score': playerScore, 'rank': playerRank, 'lastgame': playerLastGame });
                     }
                     countParses++;
                     if (countParses >= Object.keys(playersPerServer[guildID]).length) {
