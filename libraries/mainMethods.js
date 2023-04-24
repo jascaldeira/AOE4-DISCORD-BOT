@@ -1,11 +1,11 @@
-var {getAOE4WorldData, getAOE4PlayerLastGame} = require('./dataGetters.js');
-var {updateUserData, insertGameInShareList, insertGameInUserShareList} = require('./databaseMethods.js');
+var { getAOE4WorldData, getAOE4PlayerLastGame } = require('./dataGetters.js');
+var { updateUserData, insertGameInShareList, insertGameInUserShareList } = require('./databaseMethods.js');
 const { Client, Intents, EmbedBuilder, Permissions } = require('discord.js');
 
 async function sendGameReportsForUser(gamesroom, members, userID, userData) {
     if (userData['aoe4_world_id']) {
         let guildData = bot.guilds.cache.get(userData['discord_guild_id']);
-	if ( ! guildData)
+        if (!guildData)
             return;
         await getAOE4PlayerLastGame(userData['aoe4_world_id'], userData['last_game_checkup_at']).then(async function (data) {
             if (data.game_id > 0) {
@@ -46,7 +46,7 @@ async function sendGameReportsForUser(gamesroom, members, userID, userData) {
                                 teamResult = player.result;
                                 let emojiData = guildData.emojis.cache.find(emoji => emoji.name == 'aoe4_' + player.civilization)
                                 if (emojiData) {
-                                    teamValueString += '<:'+emojiData.name+':'+emojiData.id+'>';
+                                    teamValueString += '<:' + emojiData.name + ':' + emojiData.id + '>';
                                 }
 
                                 let playerName = player.name;
@@ -79,7 +79,7 @@ async function sendGameReportsForUser(gamesroom, members, userID, userData) {
                             await insertGameInShareList(game.game_id, gamesroom).then(async function (result) {
                                 try {
                                     await channel.send({ embeds: [embedData] });
-                                } catch (error) {}
+                                } catch (error) { }
                                 //console.log('REPORT SENT!');
                             }, function (err) { });
                         }
@@ -128,7 +128,7 @@ async function reportStartingGameToUser(game, userID, userData) {
             }
 
             let playerName = player.name;
-            
+
             let playerRating = null;
             await getAOE4WorldData(player.profile_id).then(function (data) {
                 if (data && data.modes && data.modes[game.kind]) {
@@ -144,7 +144,7 @@ async function reportStartingGameToUser(game, userID, userData) {
                 }
             }, function (err) {
             });
-            
+
             teamValueString += ((playerRating != null) ? playerRating : '') + ' [' + playerName + '](https://aoe4world.com/players/' + player.profile_id + ')';
             teamValueString += '\n';
         };
@@ -163,9 +163,9 @@ async function reportStartingGameToUser(game, userID, userData) {
             { name: teamData.name, value: teamData.valuestring, inline: true }
         );
     });
-    
+
     await insertGameInUserShareList(game.game_id, userID).then(function (result) {
-        bot.users.send(userID, { embeds: [embedData] }).catch(error => {});
+        bot.users.send(userID, { embeds: [embedData] }).catch(error => { });
         //console.log('REPORT SENT!');
     }, function (err) { });
 }
@@ -178,34 +178,74 @@ async function sendGamesReport(gamesroom, members) {
     }
 }
 
-function showLadder(playerData, guildID) {
-    const maxPlayers = 20;
+function showLadder(playerData, guildID, ladderType) {
+    const maxPlayersPerEmbed = 10;
+    const embedArrayLimit = 10;
     let addedPlayers = 0;
     let guildData = bot.guilds.cache.get(guildID);
-    var ladderName = guildData.name + ' - AOE4 Ladder';
-    var embedData = new EmbedBuilder()
-        .setColor('#0099ff')
-        .setTimestamp()
-        .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
-        .setTitle(ladderName);
+    let ladderName = guildData.name + ' ' + ladderType;
+    let embedsArray = [];
+
+    var longestPlayerName = playerData.sort(function (a, b) {
+        return b['name'].length - a['name'].length;
+    }
+    )[0]['name'].length;
 
     playerData.sort(function (a, b) {
         return b['score'] - a['score'];
     });
 
+    var embedData = newEmbed();
+    embedData.setTitle(ladderName);
     if (playerData.length > 0) {
+        let playersLineByLine = '';
         for (var index in playerData) {
-	    if (addedPlayers < maxPlayers) {
-                embedData.addFields({ name: (parseInt(index) + 1) + ' - ' + playerData[index].name, value: ' (Score: ' + playerData[index].score + ')' });
-	        addedPlayers = addedPlayers + 1;
-	    }
+            if (index % maxPlayersPerEmbed == 0) {
+                playersLineByLine = generateRow("#", undefined, 'Name', longestPlayerName, "Score", undefined)
+            }
+            playersLineByLine = playersLineByLine + generateRow((parseInt(index) + 1), undefined, playerData[index].name, longestPlayerName, playerData[index].score, undefined);
+            addedPlayers = addedPlayers + 1;
+            if (addedPlayers % maxPlayersPerEmbed == 0 || addedPlayers == playerData.length) {
+                embedData.setDescription("```" + playersLineByLine + "```");
+                playersLineByLine = '';
+                if (embedsArray.length == embedArrayLimit) {
+                    break;
+                }
+                embedsArray.push(embedData);
+                embedData = newEmbed();
+            }
         }
+        embedsArray[embedsArray.length - 1].setTimestamp()
+            .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
     } else {
-        embedData.addFields({ name: 'No players found', value: 'Try again later' });
+        embedData.addFields({ name: 'No players found', value: 'Try again later\n' });
+        embedsArray.push(embedData);
     }
-    embedData.addFields({ name: '\u200B', value: '\u200B' });
 
+    //console.log('Debug embedArray:' + JSON.stringify(embedsArray));
+    return embedsArray;
+}
+
+function generateRow(col1, col1MaxWidth = 4, col2, col2MaxWidth, col3, col3MaxWidth = 6) {
+    let line = '';
+    const space = ' ';
+    line = col1 + space.repeat(cellFiller(col1, col1MaxWidth)) +
+        col2 + space.repeat(cellFiller(col2, col2MaxWidth)) + ' ' +
+        space.repeat(cellFiller(col3, col3MaxWidth)) + col3 + '\r\n';
+
+    return line;
+}
+
+function cellFiller(input, maxColumnWidth) {
+    input = input + '';
+    let emptySpacesNeeded = maxColumnWidth - input.length;
+    return emptySpacesNeeded;
+}
+
+function newEmbed() {
+    let embedData = new EmbedBuilder()
+        .setColor('#0099ff');
     return embedData;
 }
 
-module.exports = {showLadder, sendGamesReport};
+module.exports = { showLadder, sendGamesReport };

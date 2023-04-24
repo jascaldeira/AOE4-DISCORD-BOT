@@ -4,6 +4,16 @@ function saveSetting(guild_id, key, value) {
     guildSettings[guild_id][key] = value;
     con.query(`INSERT INTO settings (discord_guild_id, setting_key, setting_value) VALUES (` + guild_id + `, '` + key + `', '` + value + `') ON DUPLICATE KEY UPDATE setting_value='` + value + `'`, (err, result) => { });
 }
+function removeSetting(guild_id, key, value) {
+    if (!guildSettings[guild_id])
+        guildSettings[guild_id] = {};
+    guildSettings[guild_id][key] = value;
+    if (guildSettings[guild_id] && guildSettings[guild_id][key] && guildSettings[guild_id][key] == value) {
+        delete guildSettings[guild_id][key];
+    }
+    con.query(`DELETE FROM settings WHERE discord_guild_id = ${guild_id} AND setting_key = '${key} AND setting_value = '${value}''`, (err, result) => { });
+    
+}
 
 function updateUserData(userID, guildID, field, value) {
     playersPerServer[guildID][userID][field] = value;
@@ -60,4 +70,4 @@ function checkIfGameWasSharedToUser(gameID, userId) {
     });
 }
 
-module.exports = {saveSetting, updateUserData, insertGameInShareList, insertGameInUserShareList};
+module.exports = { saveSetting, removeSetting, updateUserData, insertGameInShareList, insertGameInUserShareList };

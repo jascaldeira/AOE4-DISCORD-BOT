@@ -12,12 +12,12 @@ function handleDisconnect(localconfig) {
     con.connect(err => {
         // Console log if there is an error
         if (err) {
-            //console.log('error when connecting to db:', err);
+            console.log('error when connecting to db:', err);
             setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
         }
     
         // No error found?
-        //console.log(`MySQL has been connected!`);
+        console.log(`MySQL has been connected!`);
     });
     // If you're also serving http, display a 503 error.
     con.on('error', function (err) {

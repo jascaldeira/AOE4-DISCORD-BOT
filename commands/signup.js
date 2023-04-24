@@ -1,11 +1,11 @@
 const { Client, Intents, EmbedBuilder, Permissions, SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
-	data: new SlashCommandBuilder()
-		.setName('signup')
-		.setDescription('Use this command to sign up your AOE4 profile ID in this discord server.')
+    data: new SlashCommandBuilder()
+        .setName('signup')
+        .setDescription('Use this command to sign up your AOE4 profile ID in this discord server.')
         .addIntegerOption(option => option.setName('aoe4_profile_id').setDescription('Your AOE4World.com ID').setRequired(true)),
-	async execute(interaction) {
+    async execute(interaction) {
         let userID = interaction.user.id;
         let guildID = interaction.guildId;
         if (typeof playersPerServer[guildID] == 'undefined') {
@@ -21,5 +21,5 @@ module.exports = {
         con.query(`INSERT INTO users (discord_user_id, aoe4_world_id, discord_guild_id, last_game_checkup_at) VALUES (` + userID + `, '` + sanitizedAOE4WorldID + `', '` + guildID + `', '` + currentTimestamp + `') ON DUPLICATE KEY UPDATE aoe4_world_id='` + sanitizedAOE4WorldID + `'`, (userErr, result) => { });
 
         await interaction.reply('Thank you for your registration!');
-	},
+    },
 };
