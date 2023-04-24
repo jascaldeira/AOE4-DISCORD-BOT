@@ -202,32 +202,43 @@ function showLadder(playerData, guildID, ladderType) {
         let playersLineByLine = '';
         let titleLine = '';
         let first = true;
+        let embedInserted = false;
+        let removedPlayers = 0;
         for (var index in playerData) {
-            if (index % maxPlayersPerEmbed == 0) {
+            if (addedPlayers % maxPlayersPerEmbed == 0) {
                 titleLine = '';
                 if (first) {
-                    titleLine = 'Players who have not played for more than 15 days will be removed from the Ladder. \r\n';
+                    titleLine = 'Players who have not played for more than 15 days will be removed from the Ladder. \r\n \r\n';
                 }
-                titleLine = titleLine + generateRow("#", undefined, 'Player', longestPlayerName, "Top", undefined, "Rank", undefined, "Last game", undefined);
+                playersLineByLine = generateRow("#", undefined, 'Player', longestPlayerName + 2, "Top", undefined, "Rank", undefined, "Last game", undefined);
                 first = false;
             }
-            let timeAgo = timeAgo(playerData[index].lastgame);
-            if (timeAgo.secondsDiff < 1296000) {
-                playersLineByLine = playersLineByLine + generateRow((parseInt(index) + 1), undefined, playerData[index].name, longestPlayerName, playerData[index].rank, undefined, playerData[index].score, undefined, timeAgo.translated, undefined);
+            let timeAgoValue = timeAgo(playerData[index].lastgame);
+
+            if (timeAgoValue.secondsDiff < 1296000) {
+                playersLineByLine = playersLineByLine + generateRow((parseInt(index) + 1), undefined, playerData[index].name, longestPlayerName + 2, playerData[index].rank, undefined, playerData[index].score, undefined, timeAgoValue.translated, undefined);
                 addedPlayers = addedPlayers + 1;
-                if (addedPlayers % maxPlayersPerEmbed == 0 || addedPlayers == playerData.length) {
-                    embedData.setDescription(titleLine + "```" + playersLineByLine + "```");
-                    playersLineByLine = '';
-                    if (embedsArray.length == embedArrayLimit) {
-                        break;
-                    }
-                    embedsArray.push(embedData);
-                    embedData = newEmbed();
+            } else {
+                removedPlayers = removedPlayers + 1;
+            }
+            if (addedPlayers % maxPlayersPerEmbed == 0 || addedPlayers == (playerData.length - removedPlayers)) {
+                embedData.setDescription(titleLine + "```" + playersLineByLine + "```");
+                playersLineByLine = '';
+                if (embedsArray.length == embedArrayLimit) {
+                    break;
                 }
+                embedsArray.push(embedData);
+                embedData = newEmbed();
+                embedInserted = true;
             }
         }
-        embedsArray[embedsArray.length - 1].setTimestamp()
-            .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+        if (embedInserted) {
+            embedsArray[embedsArray.length - 1].setTimestamp()
+                .setFooter({ text: 'AOE4 Companion', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+        } else {
+            embedData.addFields({ name: 'No players found', value: 'Try again later\n' });
+            embedsArray.push(embedData);
+        }
     } else {
         embedData.addFields({ name: 'No players found', value: 'Try again later\n' });
         embedsArray.push(embedData);
@@ -237,7 +248,12 @@ function showLadder(playerData, guildID, ladderType) {
     return embedsArray;
 }
 
-function generateRow(col1, col1MaxWidth = 4, col2, col2MaxWidth = 6, col3, col3MaxWidth = 5, col4, col4MaxWidth = 4, col5, col5MaxWidth = 14) {
+function generateRow(col1, col1MaxWidth = 4, col2, col2MaxWidth = 6, col3, col3MaxWidth = 6, col4, col4MaxWidth = 5, col5, col5MaxWidth = 14) {
+    if (col2MaxWidth > 18) {
+        col2MaxWidth = 18;
+        col2 = col2.substring(0, col2MaxWidth - 2);
+    }
+        
     let line = '';
     const space = ' ';
     line = col1 + space.repeat(cellFiller(col1, col1MaxWidth)) +
