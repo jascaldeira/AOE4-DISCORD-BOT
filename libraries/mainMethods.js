@@ -211,7 +211,7 @@ function showLadder(playerData, guildID, ladderType) {
                 if (first) {
                     titleLine = 'Players who have not played for more than 15 days will be removed from the Ladder. \r\n \r\n';
                 }
-                playersLineByLine = generateRow("#", undefined, 'Player', longestPlayerName + 2, "Top", undefined, "Rank", undefined, "Last game", undefined);
+                playersLineByLine = generateRow("#", undefined, 'Player', longestPlayerName + 2, "Rank", undefined, "Elo", undefined, "Last game", undefined);
                 first = false;
             }
             let timeAgoValue = timeAgo(playerData[index].lastgame);
