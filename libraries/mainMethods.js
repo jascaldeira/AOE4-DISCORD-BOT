@@ -192,6 +192,12 @@ function showLadder(playerData, guildID, ladderType) {
     )[0]['name'].length;
 
     playerData.sort(function (a, b) {
+        if (typeof b['score'] === 'undefined')
+		    b['score'] = 0;
+
+        if (typeof a['score'] === 'undefined')
+            a['score'] = 0;
+
         return b['score'] - a['score'];
     });
 
