@@ -12,7 +12,7 @@ module.exports = {
                 let channelID = interaction.channelId;
                 let shouldUnsetup = interaction.options.getBoolean('should_unsetup')
                 if (shouldUnsetup) {
-                        removeSetting(guildID, 'gamesroom', channelID);
+                        removeSetting(guildID, 'gamesroom');
                         await interaction.reply('This channel will no longer be a  games room.');
                 } else {
                         saveSetting(guildID, 'gamesroom', channelID);
