@@ -1,5 +1,6 @@
 const { Client, Intents, EmbedBuilder, Permissions, SlashCommandBuilder } = require('discord.js');
 var { getAOE4WorldData } = require('../libraries/dataGetters.js');
+var { getSetting } = require('../libraries/databaseMethods.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,7 +9,7 @@ module.exports = {
     async execute(interaction) {
         let userID = interaction.user.id;
         let guildID = interaction.guildId;
-        if (typeof guildSettings[guildID] === 'undefined' || typeof guildSettings[guildID]['premium'] === 'undefined' || ! guildSettings[guildID]['premium']) {
+        if (getSetting(guildID, 'premium') == 1) {
             await interaction.reply('This is a premium feature! To enable this in your server, be a recurring donator (use /donators too see how to be one)');
             return;
         }
