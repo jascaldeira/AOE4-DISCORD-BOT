@@ -8,6 +8,11 @@ module.exports = {
         .setDescription('Internal discord Ranked Solo Ladder.'),
     async execute(interaction) {
         let guildID = interaction.guildId;
+        if (guildSetting['gamesroom'])
+        if (typeof guildSettings[guildID] === 'undefined' || typeof guildSettings[guildID]['premium'] === 'undefined' || ! guildSettings[guildID]['premium']) {
+            await interaction.reply('This is a premium feature! To enable this in your server, be a recurring donator (use /donators too see how to be one)');
+            return;
+        }
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
             var playerData = [];
             var countParses = 0;
