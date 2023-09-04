@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 module.exports = {
         data: new SlashCommandBuilder()
                 .setName('sendglobalmessage')
@@ -24,16 +24,14 @@ module.exports = {
                 embedData.setDescription(interaction.options.getString('input'));
 
                 for (var [guildID, guildSetting] of Object.entries(guildSettings)) {
-                        if (guildSetting['gamesroom'] == 978338409481392188 && guildID == 706858980877533284) {
+                        if ((guildSetting['gamesroom'] == 978338409481392188 && guildID == 706858980877533284) || (guildSetting['gamesroom'] == 999035587417866391 && guildID == 997619616090165409)) {
                                 let channel = bot.channels.cache.get(guildSetting['gamesroom']);
-                                if (guildSetting['gamesroom'] == 706858980877533284) {
-                                        try {
-                                                await channel.send({ embeds: [embedData] });
-                                        } catch (error) { }
-                                }
+                                try {
+                                        await channel.send({ embeds: [embedData] });
+                                } catch (error) { }
                         }
                 };
                 
-                
+                await interaction.reply('Massive message sent!');
         },
 };

@@ -18,5 +18,6 @@ module.exports = {
                                 guildSettings[setting.discord_guild_id][setting.setting_key] = setting.setting_value;
                         });
                 });
+                await interaction.reply('Guild settings reloaded');
         },
 };

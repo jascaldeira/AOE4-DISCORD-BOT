@@ -7,6 +7,6 @@ module.exports = {
 	async execute(interaction) {
 		let guildID = interaction.guildId;
 		let channelID = interaction.channelId;
-		await interaction.reply('GuildID: ' + guildID + ' - ChannelId' + channelID);
+		await interaction.reply('GuildID: ' + guildID + ' - ChannelId: ' + channelID);
 	},
 };
