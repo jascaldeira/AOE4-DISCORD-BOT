@@ -1,4 +1,4 @@
-var {sendGamesReport} = require('./mainMethods.js');
+var {sendGamesReport, sendProGamesReport} = require('./mainMethods.js');
 
 function tick() {
 }
@@ -15,6 +15,7 @@ function sixtytick() {
                 sendGamesReport(guildSetting['gamesroom'], playersPerServer[guildID]);
             }
         };
+        sendProGamesReport();
     }
 }
 

@@ -13,6 +13,8 @@ module.exports = {
                         return;
                 }
 
+		await interaction.reply('Working on it');
+
                 var embedData = new EmbedBuilder()
                             .setColor('#0099ff')
                             .setAuthor({ name: 'Age of Empires IV Assistant', iconURL: 'https://i.imgur.com/AfFp7pu.png' })
@@ -24,14 +26,13 @@ module.exports = {
                 embedData.setDescription(interaction.options.getString('input'));
 
                 for (var [guildID, guildSetting] of Object.entries(guildSettings)) {
-                        if ((guildSetting['gamesroom'] == 978338409481392188 && guildID == 706858980877533284) || (guildSetting['gamesroom'] == 999035587417866391 && guildID == 997619616090165409)) {
                                 let channel = bot.channels.cache.get(guildSetting['gamesroom']);
                                 try {
                                         await channel.send({ embeds: [embedData] });
                                 } catch (error) { }
-                        }
                 };
                 
-                await interaction.reply('Massive message sent!');
+
+                await interaction.editReply("Massive message sent!");
         },
 };

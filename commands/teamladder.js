@@ -9,8 +9,8 @@ module.exports = {
         .setDescription('Internal discord Ranked Team Ladder.'),
     async execute(interaction) {
         let guildID = interaction.guildId;
-        if (getSetting(guildID, 'premium') == 1) {
-            await interaction.reply('This is a premium feature! To enable this in your server, be a recurring donator (use /donators too see how to be one)');
+        if (getSetting(guildID, 'premium') != 1) {
+            await interaction.reply('This is a premium feature! To enable this in your server you need to be a recurring donator (use /donators too see how to be one)');
             return;
         }
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {

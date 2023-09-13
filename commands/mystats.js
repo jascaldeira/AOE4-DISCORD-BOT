@@ -9,8 +9,8 @@ module.exports = {
     async execute(interaction) {
         let userID = interaction.user.id;
         let guildID = interaction.guildId;
-        if (getSetting(guildID, 'premium') == 1) {
-            await interaction.reply('This is a premium feature! To enable this in your server, be a recurring donator (use /donators too see how to be one)');
+        if (getSetting(guildID, 'premium') != 1) {
+            await interaction.reply('This is a premium feature! To enable this in your server you need to be a recurring donator (use /donators too see how to be one)');
             return;
         }
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID] && playersPerServer[guildID][userID] && playersPerServer[guildID][userID]['aoe4_world_id']) {

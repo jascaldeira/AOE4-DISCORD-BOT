@@ -29,6 +29,12 @@ function updateUserData(userID, guildID, field, value) {
     con.query(`INSERT INTO users (discord_user_id, discord_guild_id, ` + field + `) VALUES (` + userID + `, ` + guildID + `, '` + value + `') ON DUPLICATE KEY UPDATE ` + field + `='` + value + `'`, (userErr, result) => { });
 }
 
+
+function updateProData(userID, field, value) {
+    proPlayers[userID][field] = value;
+    con.query(`UPDATE proplayers SET ` + field + ` = '` + value + `' WHERE (aoe4_world_id = '` + userID+ `');`, (userErr, result) => { });
+}
+
 function insertGameInShareList(gameID, channelID) {
     return new Promise(function (resolve, reject) {
         checkIfGameWasShared(gameID, channelID).then(function (result) {
@@ -79,4 +85,4 @@ function checkIfGameWasSharedToUser(gameID, userId) {
     });
 }
 
-module.exports = { getSetting, saveSetting, removeSetting, updateUserData, insertGameInShareList, insertGameInUserShareList };
+module.exports = { getSetting, saveSetting, removeSetting, updateUserData, updateProData, insertGameInShareList, insertGameInUserShareList };
