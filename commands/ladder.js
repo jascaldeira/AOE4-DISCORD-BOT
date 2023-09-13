@@ -1,6 +1,7 @@
 const { Client, Intents, EmbedBuilder, Permissions, SlashCommandBuilder } = require('discord.js');
 var { showLadder } = require('../libraries/mainMethods.js');
 var { getAOE4WorldData } = require('../libraries/dataGetters.js');
+var { getSetting } = require('../libraries/databaseMethods.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,6 +9,10 @@ module.exports = {
         .setDescription('Internal discord Ranked Solo Ladder.'),
     async execute(interaction) {
         let guildID = interaction.guildId;
+        if (getSetting(guildID, 'premium') != 1) {
+            await interaction.reply('This is a premium feature! To enable this in your server you need to be a recurring donator (use /donators too see how to be one)');
+            return;
+        }
         if (typeof playersPerServer !== 'undefined' && playersPerServer[guildID]) {
             var playerData = [];
             var countParses = 0;

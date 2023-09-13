@@ -20,6 +20,7 @@ module.exports = {
             { name: '/contributors', value: 'List of everyone that help supporting the bot in it development' },
             { name: '\u200B', value: '\u200B' },
             { name: '/gamesroom', value: '[ADMIN COMMAND] Use this command to define the discord channel where the bot will print the game reports' },
+            { name: '/proroom', value: '[ADMIN COMMAND] Use this command to define the discord channel where the bot will print the pro game start report' },
             { name: '\u200B', value: '\u200B' }
         );
 		await interaction.reply({ embeds: [embedData] });

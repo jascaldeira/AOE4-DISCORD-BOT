@@ -5,7 +5,8 @@ const { Client, Intents, Permissions, GatewayIntentBits  } = require('discord.js
  * GLOBAL VARS
  */
  global.playersPerServer = {};
-global.guildSettings = {};
+ global.guildSettings = {};
+ global.proPlayers = {};
 
 
 /*con.connect(err => {
@@ -43,6 +44,14 @@ bot.once("ready", () => {
     logger.info('Connected');
     logger.info('Logged in as: ');
     logger.info(bot.username);
+
+    con.query(`SELECT id, discord_user_id, aoe4_world_id, last_game_checkup_at FROM proplayers`, (userErr, userRow) => {
+        if (userRow.length > 0) {
+            userRow.forEach(function (user) {
+                proPlayers[user.aoe4_world_id] = user;
+            });
+        }
+    });
 
     con.query(`SELECT * FROM settings`, (settingErr, settingRow) => {
         settingRow.forEach(function (setting) {
